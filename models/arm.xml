@@ -1,0 +1,82 @@
+<mujoco model="tabletop_robot_arm">
+  <compiler angle="degree" autolimits="true"/>
+  <option timestep="0.005" gravity="0 0 -9.81" integrator="implicitfast"/>
+
+  <visual>
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.7 0.7 0.7" specular="0.3 0.3 0.3"/>
+    <rgba haze="0.08 0.11 0.16 1"/>
+    <global azimuth="135" elevation="-24"/>
+  </visual>
+
+  <default>
+    <joint limited="true" damping="1" armature="0.03"/>
+    <geom type="capsule" size="0.045" density="650" friction="0.8 0.1 0.1" rgba="0.18 0.48 0.78 1"/>
+    <position kp="140" dampratio="1"/>
+  </default>
+
+  <asset>
+    <texture name="floor_tex" type="2d" builtin="checker" width="256" height="256"
+             rgb1="0.12 0.14 0.17" rgb2="0.18 0.21 0.25"/>
+    <material name="floor_mat" texture="floor_tex" texrepeat="4 4" reflectance="0.15"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 2.2" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="2 2 0.1" material="floor_mat"/>
+    <geom name="table" type="box" pos="0 0 0.075" size="0.75 0.65 0.075"
+          rgba="0.30 0.24 0.18 1" friction="1 0.1 0.1"/>
+
+    <body name="pedestal" pos="0 0 0.15">
+      <geom type="cylinder" size="0.12 0.08" pos="0 0 0.08" rgba="0.12 0.14 0.18 1"/>
+
+      <body name="upper_arm" pos="0 0 0.16" gravcomp="1">
+        <joint name="shoulder_yaw" type="hinge" axis="0 0 1" range="-180 180"/>
+        <joint name="shoulder_pitch" type="hinge" axis="0 1 0" range="-80 100"/>
+        <geom name="upper_link" fromto="0 0 0 0 0 0.34"/>
+        <geom type="sphere" size="0.065" pos="0 0 0" rgba="0.95 0.56 0.16 1"/>
+
+        <body name="forearm" pos="0 0 0.34" gravcomp="1">
+          <joint name="elbow" type="hinge" axis="0 1 0" range="-145 145"/>
+          <geom name="forearm_link" fromto="0 0 0 0 0 0.29" rgba="0.22 0.66 0.72 1"/>
+          <geom type="sphere" size="0.058" pos="0 0 0" rgba="0.95 0.56 0.16 1"/>
+
+          <body name="wrist_body" pos="0 0 0.29" gravcomp="1">
+            <joint name="wrist" type="hinge" axis="0 1 0" range="-150 150"/>
+            <geom name="wrist_link" fromto="0 0 0 0 0 0.18" rgba="0.35 0.76 0.52 1"/>
+            <geom type="sphere" size="0.05" pos="0 0 0" rgba="0.95 0.56 0.16 1"/>
+
+            <body name="gripper" pos="0 0 0.18" gravcomp="1">
+              <geom name="palm" type="box" size="0.055 0.07 0.025" rgba="0.12 0.14 0.18 1"/>
+              <geom name="left_finger" type="box" pos="0 0.062 0.055" size="0.025 0.018 0.07"
+                    rgba="0.86 0.88 0.92 1"/>
+              <geom name="right_finger" type="box" pos="0 -0.062 0.055" size="0.025 0.018 0.07"
+                    rgba="0.86 0.88 0.92 1"/>
+              <site name="end_effector" pos="0 0 0.11" size="0.018" rgba="1 0.2 0.2 1"/>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <body name="target" mocap="true" pos="0.42 0 0.52">
+      <geom name="target_marker" type="sphere" size="0.04" rgba="1 0.18 0.22 0.45"
+            contype="0" conaffinity="0"/>
+      <site name="target_center" size="0.012" rgba="1 1 1 1"/>
+    </body>
+  </worldbody>
+
+  <contact>
+    <!-- Neighboring bodies meet at their joints and should not block planning. -->
+    <exclude body1="pedestal" body2="upper_arm"/>
+    <exclude body1="upper_arm" body2="forearm"/>
+    <exclude body1="forearm" body2="wrist_body"/>
+    <exclude body1="wrist_body" body2="gripper"/>
+  </contact>
+
+  <actuator>
+    <position name="shoulder_yaw_motor" joint="shoulder_yaw" ctrlrange="-3.142 3.142"/>
+    <position name="shoulder_pitch_motor" joint="shoulder_pitch" ctrlrange="-1.396 1.745"/>
+    <position name="elbow_motor" joint="elbow" ctrlrange="-2.531 2.531"/>
+    <position name="wrist_motor" joint="wrist" ctrlrange="-2.618 2.618"/>
+  </actuator>
+</mujoco>
