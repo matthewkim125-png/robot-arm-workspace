@@ -97,17 +97,3 @@ virtual-robot-arm-lab/
 └── requirements.txt
 ```
 
-## Next milestones
-
-1. Add an open/close gripper and one graspable cube.
-2. Create a scripted pick-and-place state machine.
-3. Add obstacles and collision-aware path planning.
-4. Add an interactive task editor and automatic demo recording.
-5. Optionally compare classical control with an RL policy.
-
-## Current limitations
-
-- The controller tracks gripper position but not orientation.
-- It handles self/table-aware target configurations and large direction changes, but does not yet find routes around arbitrary obstacles.
-- Some targets inside the nominal radius remain difficult because of joint limits or singular configurations.
-- The current gripper is visual only; grasping is the next milestone.
